@@ -320,8 +320,11 @@ def betterEvaluationFunction(currentGameState: GameState):
         min_ghost_dis = min(min_ghost_dis, manhattanDistance(ghost_position, newPos))
     if min_ghost_dis <= 3:
         return -float('inf')
-    # print(min_food_dis, min_ghost_dis, currentGameState.getNumFood())
-    return 20 / min_food_dis - 1.0 / min_ghost_dis - 25 * currentGameState.getNumFood()
+    if currentGameState.getNumFood() == 0:
+        return float('inf')
+    num_capsules = len(currentGameState.getCapsules())
+    # print([min_food_dis, min_ghost_dis, currentGameState.getNumFood(), len(currentGameState.getCapsules())])
+    return 20.0 / min_food_dis - 10.0 / min_ghost_dis - 30 * currentGameState.getNumFood() - 100 * num_capsules
 
 
 # Abbreviation
