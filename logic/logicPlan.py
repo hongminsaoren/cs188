@@ -117,7 +117,8 @@ def findModelUnderstandingCheck() -> Dict[Expr, bool]:
     """Returns the result of findModel(Expr('a')) if lower cased expressions were allowed.
     You should not use findModel or Expr in this method.
     """
-    a = Expr('A'.lower())
+    a = Expr('A')
+    a.op = "a"
     "*** BEGIN YOUR CODE HERE ***"
     print("a.__dict__ is:", a.__dict__)  # might be helpful for getting ideas
     return {a: True}
@@ -591,8 +592,6 @@ def slam(problem, agent) -> Generator:
 
     "*** BEGIN YOUR CODE HERE ***"
     KB.append(PropSymbolExpr(pacman_str, pac_x_0, pac_y_0, time=0))
-    KB.append(~PropSymbolExpr(wall_str, pac_x_0, pac_y_0))
-    known_map[pac_x_0][pac_y_0] = 0
     for t in range(agent.num_timesteps):
         KB.append(
             pacphysicsAxioms(t, all_coords, non_outer_wall_coords, known_map, SLAMSensorAxioms,
@@ -610,15 +609,15 @@ def slam(problem, agent) -> Generator:
                 KB.append(~PropSymbolExpr(pacman_str, x, y, time=t))
             else:
                 possible_locations.append((x, y))
-            for (x, y) in non_outer_wall_coords:
-                model1 = findModel(conjoin(KB + [~PropSymbolExpr(wall_str, x, y)]))
-                model2 = findModel(conjoin(KB + [PropSymbolExpr(wall_str, x, y)]))
-                if not model1:
-                    known_map[x][y] = 1
-                    KB.append(PropSymbolExpr(wall_str, x, y))
-                if not model2:
-                    known_map[x][y] = 0
-                    KB.append(~PropSymbolExpr(wall_str, x, y))
+        for (x, y) in non_outer_wall_coords:
+            model1 = findModel(conjoin(KB + [~PropSymbolExpr(wall_str, x, y)]))
+            model2 = findModel(conjoin(KB + [PropSymbolExpr(wall_str, x, y)]))
+            if not model1:
+                known_map[x][y] = 1
+                KB.append(PropSymbolExpr(wall_str, x, y))
+            if not model2:
+                known_map[x][y] = 0
+                KB.append(~PropSymbolExpr(wall_str, x, y))
         agent.moveToNextState(agent.actions[t])
         "*** END YOUR CODE HERE ***"
         yield (known_map, possible_locations)
